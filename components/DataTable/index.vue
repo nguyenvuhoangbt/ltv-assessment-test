@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { h, ref } from 'vue'
-import { Checkbox } from '@/components/ui/checkbox'
-import { cn } from '@/lib/utils'
 import {
   Table,
   TableBody,
@@ -10,140 +7,92 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import type {
-  ColumnFiltersState,
-  ExpandedState,
-  SortingState,
-  VisibilityState,
-} from '@tanstack/vue-table'
+import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import {
-  FlexRender,
-  createColumnHelper,
-  getCoreRowModel,
-  getExpandedRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useVueTable,
-} from '@tanstack/vue-table'
+  getColumns,
+  type ShippingNote,
+} from '@/composables/DataTable/useColumns'
+import { transformData } from '@/composables/API/useGetData'
+import SwappingSquaresSpinner from '../ui/loading/SwappingSquaresSpinner.vue'
 
-export interface ShippingNote {
-  id: string
-  shippingNotePreference: string
-  amount: number
-  status: 'pending' | 'processing' | 'success' | 'failed'
-  email: string
+const isLoading = ref(true)
+const rows = ref<ShippingNote[]>([])
+
+const columns = getColumns()
+const table = ref()
+const posts = ref([])
+
+const id = useId()
+interface DataResponse {
+  content: {
+    id: string
+    reference: string
+    operation: {
+      name: string
+      [key: string]: any
+    }
+    principalName: string
+    status: 'PAID' | 'DEPARTED' | 'ARRIVED' | 'EXITED' | 'LATE'
+    officeDeparture: {
+      code: string
+      [key: string]: any
+    }
+    officeDestination: {
+      code: string
+      [key: string]: any
+    }
+    submittedDate: string
+    departureDateTime: string
+    estimatedArrivalDate: string
+    createdDate: string
+  }[]
+  pageable: {
+    pageSize: number
+    [key: string]: any
+  }
+  totalPages: number
+  totalElements: number
+}
+const { data, status } = await useLazyAsyncData<DataResponse>(
+  `getData-${id}`,
+  () => $fetch('/api/get-data-table'),
+  { server: false }
+)
+
+watch(status, () => {
+  if(status.value === 'success') {
+    isLoading.value = false
+    handleDataTable(transformData(data.value).rows)
+  }
+})
+
+const handleDataTable = (data: any) => {
+  table.value = useVueTable({
+    data: data,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  })
 }
 
-const data: ShippingNote[] = [
-  {
-    id: 'm5gr84i9',
-    shippingNotePreference: 'GHABK381100001415',
-    amount: 316,
-    status: 'success',
-    email: 'ken99@yahoo.com',
-  },
-]
-
-const columnHelper = createColumnHelper<ShippingNote>()
-
-const columns = [
-  columnHelper.display({
-    id: 'select',
-    cell: ({ row }) => {
-      return h(Checkbox, {
-        'checked': row.getIsSelected(),
-        'onUpdate:checked': value => row.toggleSelected(!!value),
-        'ariaLabel': 'Select row',
-      })
-    },
-  }),
-  columnHelper.accessor('shippingNotePreference', {
-    // enablePinning: true,
-    header: 'Shipping Note Preference',
-    cell: ({ row }) => h('div', { class: 'font-semibold' }, row.getValue('shippingNotePreference')),
-  }),
-  columnHelper.accessor('status', {
-    enablePinning: true,
-    header: 'Status',
-    cell: ({ row }) => h('div', { class: 'capitalize' }, row.getValue('status')),
-  }),
-  columnHelper.accessor('amount', {
-    header: () => h('div', { class: 'text-right' }, 'Amount'),
-    cell: ({ row }) => {
-      const amount = Number.parseFloat(row.getValue('amount'))
-
-      // Format the amount as a dollar amount
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-      }).format(amount)
-
-      return h('div', { class: 'text-right font-medium' }, formatted)
-    },
-  }),
-  columnHelper.display({
-    id: 'actions',
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original
-
-      return h('div', { class: 'relative' }, h('div', {
-        payment,
-        onExpand: row.toggleExpanded,
-      }))
-    },
-  }),
-]
-
-const sorting = ref<SortingState>([])
-const columnFilters = ref<ColumnFiltersState>([])
-const columnVisibility = ref<VisibilityState>({})
-const rowSelection = ref({})
-const expanded = ref<ExpandedState>({})
-
-const table = useVueTable({
-  data,
-  columns,
-  getCoreRowModel: getCoreRowModel(),
-  // getPaginationRowModel: getPaginationRowModel(),
-  // getSortedRowModel: getSortedRowModel(),
-  // getFilteredRowModel: getFilteredRowModel(),
-  // getExpandedRowModel: getExpandedRowModel(),
-  // state: {
-    // get sorting() {
-    //   return sorting.value
-    // },
-    // get columnFilters() {
-    //   return columnFilters.value
-    // },
-    // get columnVisibility() {
-    //   return columnVisibility.value
-    // },
-    // get rowSelection() {
-    //   return rowSelection.value
-    // },
-    // get expanded() {
-    //   return expanded.value
-    // },
-    // columnPinning: {
-    //   left: ['status'],
-    // },
-  // },
-})
+handleDataTable([])
 </script>
 
 <template>
-  <div class="flex gap-10 flex-col">
+  <div class="flex gap-6 flex-col h-full md:gap-10">
     <DataTableFilterOption />
 
-    <div class="flex justify-between">
+    <div
+      class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center"
+    >
       <DialogCreateNewShippingNote />
 
       <DataTablePagination :total="382" />
     </div>
 
-    <Table>
+    <div v-if="isLoading" class="h-full flex-center">
+      <SwappingSquaresSpinner />
+    </div>
+    <Table v-else>
       <TableHeader>
         <TableRow
           v-for="headerGroup in table.getHeaderGroups()"
@@ -152,13 +101,7 @@ const table = useVueTable({
           <TableHead
             v-for="header in headerGroup.headers"
             :key="header.id"
-            :data-pinned="header.column.getIsPinned()"
-            :class="
-              cn(
-                { 'sticky bg-background/95': header.column.getIsPinned() },
-                header.column.getIsPinned() === 'left' ? 'left-0' : 'right-0'
-              )
-            "
+            class="font-bold"
           >
             <FlexRender
               v-if="!header.isPlaceholder"
@@ -168,23 +111,12 @@ const table = useVueTable({
           </TableHead>
         </TableRow>
       </TableHeader>
+
       <TableBody>
         <template v-if="table.getRowModel().rows?.length">
           <template v-for="row in table.getRowModel().rows" :key="row.id">
             <TableRow :data-state="row.getIsSelected() && 'selected'">
-              <TableCell
-                v-for="cell in row.getVisibleCells()"
-                :key="cell.id"
-                :data-pinned="cell.column.getIsPinned()"
-                :class="
-                  cn(
-                    {
-                      'sticky bg-background/95': cell.column.getIsPinned(),
-                    },
-                    cell.column.getIsPinned() === 'left' ? 'left-0' : 'right-0'
-                  )
-                "
-              >
+              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
                 <FlexRender
                   :render="cell.column.columnDef.cell"
                   :props="cell.getContext()"

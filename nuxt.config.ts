@@ -5,6 +5,7 @@ export default defineNuxtConfig({
       charset: 'utf-8',
       viewport: 'width=device-width, initial-scale=1',
     },
+    pageTransition: { name: 'page', mode: 'out-in' },
   },
   devtools: { enabled: false },
   shadcn: {
@@ -20,4 +21,15 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: '2024-08-08',
+  vite: {
+    server: {
+      proxy: {
+        '/api/get-data-table': {
+          target: 'https://api.jsonserve.com/L0Yu2N',
+          changeOrigin: true,
+          rewrite: (path) => '',
+        },
+      },
+    },
+  },
 })

@@ -25,23 +25,23 @@ export const groupOptions = [
 
 export const statusOptions = [
   {
-    value: 'paid',
+    value: 'PAID',
     label: 'Paid',
   },
   {
-    value: 'departed',
+    value: 'DEPARTED',
     label: 'Departed',
   },
   {
-    value: 'arrived',
+    value: 'ARRIVED',
     label: 'Arrived',
   },
   {
-    value: 'exited',
+    value: 'EXITED',
     label: 'Exited',
   },
   {
-    value: 'late',
+    value: 'LATE',
     label: 'Late',
   },
 ]

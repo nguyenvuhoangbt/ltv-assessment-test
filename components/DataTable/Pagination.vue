@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { paginationOptions } from './const'
 import {
   Pagination,
   PaginationEllipsis,
@@ -9,9 +12,6 @@ import {
   PaginationNext,
   PaginationPrev,
 } from '@/components/ui/pagination'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { paginationOptions } from './const'
 
 const { page, total } = defineProps({
   page: {
@@ -28,7 +28,7 @@ const currentPage = ref(page)
 const itemPerPage = ref(10)
 
 const getFromIndex = computed(() => {
-  return  (currentPage.value - 1) * itemPerPage.value + 1
+  return (currentPage.value - 1) * itemPerPage.value + 1
 })
 
 const getToIndex = computed(() => {
@@ -41,30 +41,33 @@ watch(itemPerPage, () => {
 </script>
 
 <template>
-  <div class="flex h-5 items-center space-x-1 text-sm">
+  <div
+    class="flex flex-col items-center justify-between space-x-1 text-sm md:flex-row md:h-5"
+  >
     <span class="flex items-center gap-4">
       <span>Size:</span>
-      <DataTableSelectOption
-        :options="paginationOptions"
-        :border="false"
-        :value="itemPerPage.toString()"
-        @update:modelValue="($event) => (itemPerPage = $event)"
-      />
-      <span class="whitespace-nowrap">{{
-        `${getFromIndex} - ${getToIndex} of ${total}`
-      }}</span>
+      <div class="flex gap-4 items-center">
+        <DataTableSelectOption
+          aria-label="Size"
+          :options="paginationOptions"
+          :border="false"
+          :value="itemPerPage.toString()"
+          @update:modelValue="($event) => (itemPerPage = $event)"
+        />
+        <span class="whitespace-nowrap">{{
+          `${getFromIndex} - ${getToIndex} of ${total}`
+        }}</span>
+      </div>
     </span>
     <Pagination
       v-model:page="currentPage"
       :total="total"
-      :sibling-count="2"
+      :sibling-count="1"
       :items-per-page="itemPerPage"
       show-edges
     >
-      <PaginationList v-slot="{ items }" class="flex items-center gap-1">
-        <template v-if="currentPage > 1">
-          <PaginationFirst />
-        </template>
+      <PaginationList v-slot="{ items }" class="flex items-center sm:gap-1">
+        <PaginationFirst />
         <PaginationPrev />
 
         <template v-for="(item, index) in items">
@@ -89,11 +92,11 @@ watch(itemPerPage, () => {
         </template>
 
         <PaginationNext />
-        <PaginationLast v-if="currentPage < total / 10" />
+        <PaginationLast />
       </PaginationList>
     </Pagination>
 
-    <Separator orientation="vertical" />
+    <Separator orientation="vertical"  class="hidden md:block"/>
 
     <Button aria-label="list" class="bg-transparent scale-75">
       <i class="icon icon-list-solid scale-75" />

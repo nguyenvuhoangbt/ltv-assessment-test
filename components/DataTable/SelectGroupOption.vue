@@ -20,6 +20,10 @@ const { label, options } = defineProps({
     type: String,
     require: true,
   },
+  ariaLabel: {
+    type: String,
+    require: true,
+  },
   placeholder: String,
   options: {
     type: Object as PropType<GroupOption[]>,
@@ -29,22 +33,20 @@ const { label, options } = defineProps({
 </script>
 
 <template>
-  <div class="grid w-full max-w-sm items-center gap-1.5">
-    <Label for="email" class="text-gray-400 mb-2">{{ label }}</Label>
-    <Select>
-      <SelectTrigger class="text-md">
-        <SelectValue :placeholder="placeholder" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup v-for="(group, i) in options" :key="i" class="font-sans">
-          <SelectLabel class="text-md font-semibold pl-2">{{
-            group.name
-          }}</SelectLabel>
-          <SelectItem v-for="(item, i) in group.items" :key="i" :value="item">
-            {{ item }}
-          </SelectItem>
-        </SelectGroup>
-      </SelectContent>
-    </Select>
-  </div>
+  <Label for="email" class="text-gray-400 mb-2">{{ label }}</Label>
+  <Select :aria-label="ariaLabel">
+    <SelectTrigger class="text-md" :aria-label="`${ariaLabel} Dropdown`">
+      <SelectValue :placeholder="placeholder" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectGroup v-for="(group, i) in options" :key="i" class="font-sans">
+        <SelectLabel class="text-md font-semibold pl-2">{{
+          group.name
+        }}</SelectLabel>
+        <SelectItem v-for="(item, i) in group.items" :key="i" :value="item">
+          {{ item }}
+        </SelectItem>
+      </SelectGroup>
+    </SelectContent>
+  </Select>
 </template>
