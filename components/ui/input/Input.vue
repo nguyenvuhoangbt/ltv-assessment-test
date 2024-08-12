@@ -1,27 +1,32 @@
 <script setup lang="ts">
-import type { HTMLAttributes } from "vue";
-import { useVModel } from "@vueuse/core";
-import { cn } from "@/lib/utils";
+import type { HTMLAttributes } from 'vue'
+import { cn } from '@/lib/utils'
+import { useDebouncedRef } from '@/lib/debounce'
 
 const props = defineProps<{
-  defaultValue?: string | number;
-  modelValue?: string | number;
-  class?: HTMLAttributes["class"];
-}>();
+  modelValue?: string | number
+  class?: HTMLAttributes['class']
+  debounced?: number
+}>()
 
-const emits = defineEmits<{
-  (e: "update:modelValue", payload: string | number): void;
-}>();
+const text = props.debounced
+  ? useDebouncedRef(props.modelValue, props.debounced)
+  : ref(props.modelValue)
 
-const modelValue = useVModel(props, "modelValue", emits, {
-  passive: true,
-  defaultValue: props.defaultValue,
-});
+const emit = defineEmits(['update:modelValue'])
+
+watch(text, (value) => {
+  emit('update:modelValue', value)
+})
+
+watch(() => props.modelValue, (value) => {
+  text.value = value
+})
 </script>
 
 <template>
   <input
-    v-model="modelValue"
+    v-model="text"
     :class="
       cn(
         'flex h-10 w-full border-b border-gray-400 bg-transparent py-2 text-md ring-offset-white placeholder:text-gray-400/50 focus-visible:outline-none focus-visible:border-white focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50',

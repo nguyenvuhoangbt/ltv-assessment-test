@@ -11,7 +11,7 @@ const props = defineProps<{
   <th
     :class="
       cn(
-        'h-12 px-4 py-2 text-left align-middle font-medium text-gray-400 [&:has([role=checkbox])]:pr-0',
+        'h-12 p-2 text-left align-middle font-medium text-gray-400 [&:has([role=checkbox])]:pr-0',
         props.class
       )
     "

@@ -7,91 +7,96 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { FlexRender, getCoreRowModel, useVueTable } from '@tanstack/vue-table'
 import {
-  getColumns,
-  type ShippingNote,
-} from '@/composables/DataTable/useColumns'
+  FlexRender,
+  getCoreRowModel,
+  useVueTable,
+  getFilteredRowModel,
+} from '@tanstack/vue-table'
+import { getColumns } from '@/composables/DataTable/useColumns'
 import { transformData } from '@/composables/API/useGetData'
-import SwappingSquaresSpinner from '../ui/loading/SwappingSquaresSpinner.vue'
+import { type DataResponse } from '@/composables/API/useGetData'
 
 const isLoading = ref(true)
-const rows = ref<ShippingNote[]>([])
-
 const columns = getColumns()
 const table = ref()
-const posts = ref([])
 
-const id = useId()
-interface DataResponse {
-  content: {
-    id: string
-    reference: string
-    operation: {
-      name: string
-      [key: string]: any
-    }
-    principalName: string
-    status: 'PAID' | 'DEPARTED' | 'ARRIVED' | 'EXITED' | 'LATE'
-    officeDeparture: {
-      code: string
-      [key: string]: any
-    }
-    officeDestination: {
-      code: string
-      [key: string]: any
-    }
-    submittedDate: string
-    departureDateTime: string
-    estimatedArrivalDate: string
-    createdDate: string
-  }[]
-  pageable: {
-    pageSize: number
-    [key: string]: any
-  }
-  totalPages: number
-  totalElements: number
+const initialFilter = {
+  shippingNote: null,
+  status: null,
 }
-const { data, status } = await useLazyAsyncData<DataResponse>(
-  `getData-${id}`,
-  () => $fetch('/api/get-data-table'),
+const filter = ref(initialFilter)
+
+const { data, status } = await useLazyAsyncData(
+  `getData`,
+  () => $fetch<DataResponse>('/api/get-data-table'),
   { server: false }
 )
 
 watch(status, () => {
-  if(status.value === 'success') {
+  if (status.value !== 'pending') {
     isLoading.value = false
+  }
+  if (status.value === 'success') {
     handleDataTable(transformData(data.value).rows)
   }
 })
+
+watch(
+  () => filter.value.shippingNote,
+  (value) => {
+    table.value.getColumn('reference')?.setFilterValue(value)
+  }
+)
+
+watch(
+  () => filter.value.status,
+  (value) => {
+    table.value.getColumn('status')?.setFilterValue(value)
+  }
+)
 
 const handleDataTable = (data: any) => {
   table.value = useVueTable({
     data: data,
     columns,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   })
 }
 
-handleDataTable([])
+const clearFilter = () => {
+  filter.value.shippingNote = null
+  filter.value.status = null
+}
 </script>
 
 <template>
-  <div class="flex gap-6 flex-col h-full md:gap-10">
-    <DataTableFilterOption />
+  <div class="flex gap-6 flex-col md:gap-10">
+    <DataTableFilterOption
+      :shipping-note="filter.shippingNote"
+      :status="filter.status"
+      @update:shipping-note="(value) => (filter.shippingNote = value)"
+      @update:status="(value) => (filter.status = value)"
+      @update:clear-filter="clearFilter"
+    />
 
     <div
       class="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center"
     >
       <DialogCreateNewShippingNote />
 
-      <DataTablePagination :total="382" />
+      <DataTablePagination
+        v-if="!isLoading"
+        :total="data.totalElements"
+        :size="data.pageable.pageSize"
+      />
     </div>
 
     <div v-if="isLoading" class="h-full flex-center">
-      <SwappingSquaresSpinner />
+      <LoadingSpinner />
     </div>
+
     <Table v-else>
       <TableHeader>
         <TableRow
@@ -113,29 +118,37 @@ handleDataTable([])
       </TableHeader>
 
       <TableBody>
-        <template v-if="table.getRowModel().rows?.length">
-          <template v-for="row in table.getRowModel().rows" :key="row.id">
-            <TableRow :data-state="row.getIsSelected() && 'selected'">
-              <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
-                <FlexRender
-                  :render="cell.column.columnDef.cell"
-                  :props="cell.getContext()"
-                />
-              </TableCell>
-            </TableRow>
-            <TableRow v-if="row.getIsExpanded()">
-              <TableCell :colspan="row.getAllCells().length">
-                {{ row.original }}
-              </TableCell>
-            </TableRow>
-          </template>
-        </template>
-
-        <TableRow v-else>
+        <TableRow v-if="isLoading">
           <TableCell :colspan="columns.length" class="h-24 text-center">
             No results.
           </TableCell>
         </TableRow>
+
+        <template v-else>
+          <template v-if="table.getRowModel().rows?.length">
+            <template v-for="row in table.getRowModel().rows" :key="row.id">
+              <TableRow :data-state="row.getIsSelected() && 'selected'">
+                <TableCell v-for="cell in row.getVisibleCells()" :key="cell.id">
+                  <FlexRender
+                    :render="cell.column.columnDef.cell"
+                    :props="cell.getContext()"
+                  />
+                </TableCell>
+              </TableRow>
+              <TableRow v-if="row.getIsExpanded()">
+                <TableCell :colspan="row.getAllCells().length">
+                  {{ row.original }}
+                </TableCell>
+              </TableRow>
+            </template>
+          </template>
+
+          <TableRow v-else>
+            <TableCell :colspan="columns.length" class="h-24 text-center">
+              No results.
+            </TableCell>
+          </TableRow>
+        </template>
       </TableBody>
     </Table>
   </div>

@@ -11,10 +11,11 @@ const route = useRoute()
 </script>
 
 <template>
-  <main id="app-layout" class="h-screen w-screen bg-primary text-white font-sans">
-    <header
-      class="flex justify-between items-center p-4 fixed top-0 w-full z-10 bg-primary"
-    >
+  <main
+    id="app-layout"
+    class="h-screen w-screen bg-primary text-white font-sans"
+  >
+    <header class="flex justify-between items-center p-4 w-full bg-primary">
       <div class="flex gap-4 items-center">
         <Button aria-label="menu">
           <i class="icon icon-menu" />
@@ -27,9 +28,11 @@ const route = useRoute()
               </NuxtLink>
             </BreadcrumbItem>
             <template v-if="route.name !== 'index'">
-              <BreadcrumbSeparator class="hidden md:block"/>
+              <BreadcrumbSeparator class="hidden md:block" />
               <BreadcrumbItem>
-                <BreadcrumbPage class="font-bold uppercase text-gray-400 hidden md:block">
+                <BreadcrumbPage
+                  class="font-bold uppercase text-gray-400 hidden md:block"
+                >
                   {{ route.name.toString().replaceAll('-', ' ') }}
                 </BreadcrumbPage>
               </BreadcrumbItem>
@@ -59,7 +62,7 @@ const route = useRoute()
       </div>
     </header>
 
-    <div class="h-screen pt-[72px] overflow-y-auto overflow-x-hidden">
+    <div class="pt-[72px] -mt-[72px]">
       <slot />
     </div>
   </main>

@@ -36,7 +36,7 @@ const { handleSubmit } = useForm({
   <Dialog>
     <DialogTrigger
       aria-label="create new shipping note"
-      class="bg-blue-900 hover:bg-blue-900/50 flex gap-2 px-4 h-9 flex-center rounded-md sm:w-fit"
+      class="bg-blue-900 hover:bg-blue-900/50 flex gap-2 px-4 h-9 flex-center rounded-md sm:w-fit duration-200"
     >
       <i class="icon icon-plus-solid scale-75" />
       <span class="uppercase font-semibold">Create new shipping note</span>

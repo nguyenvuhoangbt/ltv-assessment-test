@@ -13,7 +13,7 @@ import {
   PaginationPrev,
 } from '@/components/ui/pagination'
 
-const { page, total } = defineProps({
+const { page, total, size } = defineProps({
   page: {
     type: Number,
     default: 1,
@@ -22,10 +22,14 @@ const { page, total } = defineProps({
     type: Number,
     required: true,
   },
+  size: {
+    type: Number,
+    default: 10,
+  },
 })
 
 const currentPage = ref(page)
-const itemPerPage = ref(10)
+const itemPerPage = ref(size)
 
 const getFromIndex = computed(() => {
   return (currentPage.value - 1) * itemPerPage.value + 1
@@ -51,7 +55,7 @@ watch(itemPerPage, () => {
           aria-label="Size"
           :options="paginationOptions"
           :border="false"
-          :value="itemPerPage.toString()"
+          :modelValue="itemPerPage.toString()"
           @update:modelValue="($event) => (itemPerPage = $event)"
         />
         <span class="whitespace-nowrap">{{

@@ -13,7 +13,8 @@ interface Option {
   value: string
 }
 
-const { label, placeholder, options, value } = defineProps({
+const { label, placeholder, options, modelValue } = defineProps({
+  modelValue: String,
   label: String,
   ariaLabel: {
     type: String,
@@ -28,7 +29,6 @@ const { label, placeholder, options, value } = defineProps({
     type: Boolean,
     default: true,
   },
-  value: String,
 })
 
 defineEmits(['update:modelValue'])
@@ -37,7 +37,7 @@ defineEmits(['update:modelValue'])
 <template>
   <Label v-if="label" for="email" class="text-gray-400 mb-2">{{ label }}</Label>
   <Select
-    :modelValue="value"
+    :modelValue="modelValue"
     @update:modelValue="$emit('update:modelValue', $event)"
     :aria-label="ariaLabel"
   >
@@ -48,13 +48,8 @@ defineEmits(['update:modelValue'])
     >
       <SelectValue :placeholder="placeholder" class="pr-2" />
     </SelectTrigger>
-    <SelectContent>
-      <SelectItem
-        v-for="(option, i) in options"
-        :key="i"
-        :value="option.value"
-        class="font-sans"
-      >
+    <SelectContent class="font-sans">
+      <SelectItem v-for="(option, i) in options" :key="i" :value="option.value">
         {{ option.label }}
       </SelectItem>
     </SelectContent>

@@ -2,7 +2,7 @@ import Button from '@/components/ui/button/Button.vue'
 import { createColumnHelper } from '@tanstack/vue-table'
 import { h } from 'vue'
 
-export interface ShippingNote {
+interface ShippingNote {
   id: string
   reference: string
   status: 'PAID' | 'DEPARTED' | 'ARRIVED' | 'EXITED' | 'LATE'
