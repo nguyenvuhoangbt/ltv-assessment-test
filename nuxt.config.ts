@@ -21,15 +21,9 @@ export default defineNuxtConfig({
     },
   },
   compatibilityDate: '2024-08-08',
-  vite: {
-    server: {
-      proxy: {
-        '/api/get-data-table': {
-          target: 'https://api.jsonserve.com/L0Yu2N',
-          changeOrigin: true,
-          rewrite: (path) => '',
-        },
-      },
+  routeRules: {
+    '/api/get-data-table': {
+      proxy: 'https://api.jsonserve.com/L0Yu2N',
     },
   },
 })
