@@ -1,3 +1,5 @@
+type Status = 'PAID' | 'DEPARTED' | 'ARRIVED' | 'EXITED' | 'LATE'
+
 export interface DataResponse {
   content: {
     id: string
@@ -7,7 +9,7 @@ export interface DataResponse {
       [key: string]: any
     }
     principalName: string
-    status: 'PAID' | 'DEPARTED' | 'ARRIVED' | 'EXITED' | 'LATE'
+    status: Status
     officeDeparture: {
       code: string
       [key: string]: any
@@ -29,8 +31,21 @@ export interface DataResponse {
   totalElements: number
 }
 
+export type rowDataTable = {
+  id: string
+  reference: string
+  status: Status
+  operation: string
+  principalName: string
+  officeDeparture: string
+  officeDestination: string
+  submittedDate: string
+  departureDateTime: string
+  estimatedArrivalDate: string
+}
+
 export const transformData = (data: DataResponse) => {
-  const rows = data.content.map(
+  const rows: rowDataTable[] = data.content.map(
     ({
       id,
       reference,

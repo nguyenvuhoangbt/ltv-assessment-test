@@ -15,7 +15,10 @@ import {
 } from '@tanstack/vue-table'
 import { getColumns } from '@/composables/DataTable/useColumns'
 import { transformData } from '@/composables/DataTable/useGetData'
-import { type DataResponse } from '@/composables/DataTable/useGetData'
+import {
+  type DataResponse,
+  type rowDataTable,
+} from '@/composables/DataTable/useGetData'
 
 const isLoading = ref(true)
 const columns = getColumns()
@@ -38,27 +41,28 @@ watch(status, () => {
     isLoading.value = false
   }
   if (status.value === 'success') {
-    handleDataTable(transformData(data.value).rows)
+    const { rows } = transformData(data.value)
+    handleDataTable(rows)
   }
 })
 
 watch(
   () => filter.value.shippingNote,
-  (value) => {
+  (value: string) => {
     table.value.getColumn('reference')?.setFilterValue(value)
   }
 )
 
 watch(
   () => filter.value.status,
-  (value) => {
+  (value: string) => {
     table.value.getColumn('status')?.setFilterValue(value)
   }
 )
 
-const handleDataTable = (data: any) => {
+const handleDataTable = (data: rowDataTable[]) => {
   table.value = useVueTable({
-    data: data,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
