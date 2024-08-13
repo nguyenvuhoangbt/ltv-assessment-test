@@ -17,13 +17,13 @@ const route = useRoute()
   >
     <header class="flex justify-between items-center p-4 w-full bg-primary">
       <div class="flex gap-4 items-center">
-        <Button aria-label="menu">
+        <Button aria-label="menu" class="size-10">
           <i class="icon icon-menu" />
         </Button>
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <NuxtLink href="/" class="font-bold uppercase hover:text-white">
+              <NuxtLink href="/" class="font-bold uppercase hover:text-white p-2">
                 Home
               </NuxtLink>
             </BreadcrumbItem>

@@ -49,23 +49,23 @@ export const getColumns = () => {
           h(
             Button,
             {
-              class:
-                'bg-transparent scale-[0.7] brightness-50 hover:brightness-100',
+              class: 'bg-transparent brightness-50 hover:brightness-100 size-7',
+              ariaLabel: `Actions for ${row.original.reference}`,
             },
             () =>
               h('i', {
-                class: 'icon icon-ellipsis-solid',
+                class: 'icon icon-ellipsis-solid scale-[0.6]',
               })
           ),
           h(
             Button,
             {
-              class:
-                'bg-transparent scale-[0.7] brightness-50 hover:brightness-100',
+              class: 'bg-transparent brightness-50 hover:brightness-100 size-7',
+              ariaLabel: `Bookmark for ${row.original.reference}`,
             },
             () =>
               h('i', {
-                class: 'icon icon-bookmark-regular',
+                class: 'icon icon-bookmark-regular scale-[0.6]',
               })
           ),
         ])
@@ -87,7 +87,7 @@ export const getColumns = () => {
           h(
             'span',
             {
-              class: `uppercase px-4 py-2 rounded-3xl select-none font-semibold ${
+              class: `uppercase px-4 py-1 rounded-3xl select-none font-semibold ${
                 ['PAID', 'ARRIVED', 'EXITED'].includes(row.getValue('status'))
                   ? 'bg-[#213C35] text-[#47DA85]'
                   : row.getValue('status') === 'DEPARTED'

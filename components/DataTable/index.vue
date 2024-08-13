@@ -14,8 +14,8 @@ import {
   getFilteredRowModel,
 } from '@tanstack/vue-table'
 import { getColumns } from '@/composables/DataTable/useColumns'
-import { transformData } from '@/composables/API/useGetData'
-import { type DataResponse } from '@/composables/API/useGetData'
+import { transformData } from '@/composables/DataTable/useGetData'
+import { type DataResponse } from '@/composables/DataTable/useGetData'
 
 const isLoading = ref(true)
 const columns = getColumns()
